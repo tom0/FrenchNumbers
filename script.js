@@ -1,52 +1,106 @@
-var synth = window.speechSynthesis;
+(function() {
+  var synth = window.speechSynthesis;
 
-var inputForm = document.querySelector('form');
-var inputTxt = document.querySelector('.txt');
-var voiceSelect = document.querySelector('select');
+  var inputForm = document.querySelector('form');
+  var inputTxt = document.querySelector('.txt');
+  var rate = document.querySelector('#rate');
+  var rateValue = document.querySelector('.rate-value');
+  var nextButton = document.querySelector('#next');
+  var submitButton = document.querySelector('#submit');
+  var repeatButton = document.querySelector('#repeat');
+  var resultsText = document.querySelector('#results');
 
-var pitch = document.querySelector('#pitch');
-var pitchValue = document.querySelector('.pitch-value');
-var rate = document.querySelector('#rate');
-var rateValue = document.querySelector('.rate-value');
+  var frenchVoice;
+  var minimum = 0;
+  var maximum = 10000;
+  var speaking = false;
+  var currentNumber;
 
-var frenchVoice;
+  function next() {
+    inputTxt.disabled = false;
+    repeatButton.disabled = false;
+    resultsText.innerHTML = '?';
+    inputTxt.focus();
 
-var frenchLanguagePrefix = 'fr';
+    currentNumber = Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+    say(currentNumber);
+  }
 
-function getFrenchVoice() {
-  var voices = synth.getVoices();
-  var frenchVoices = [];
-  for (var i = 0; i < voices.length; i++) {
-    if (voices[i].lang.toLowerCase() == 'fr-fr' || voices[i].lang.toLowerCase() === 'fr_fr') {
-      frenchVoice = voices[i];
-      break;
+  function repeat() {
+    say(currentNumber);
+    inputTxt.focus();
+  }
+
+  function getFrenchVoice() {
+    var voices = synth.getVoices();
+    var frenchVoices = [];
+    for (var i = 0; i < voices.length; i++) {
+      if (voices[i].lang.toLowerCase() == 'fr-fr' || voices[i].lang.toLowerCase() === 'fr_fr') {
+        frenchVoice = voices[i];
+        break;
+      }
     }
   }
-}
 
-getFrenchVoice();
-if (speechSynthesis.onvoiceschanged !== undefined) {
-  speechSynthesis.onvoiceschanged = getFrenchVoice;
-}
+  function say(text) {
+    if (speaking) return;
+    try {
+      speaking = true;
 
-inputForm.onsubmit = function(event) {
-  event.preventDefault();
+      var utterThis = new SpeechSynthesisUtterance(text);
+      utterThis.lang = 'fr_FR';
+      utterThis.voice = frenchVoice;
+      utterThis.pitch = 1;
+      utterThis.rate = rate.value;
+      synth.speak(utterThis);
+    } finally {
+      speaking = false;
+    }
+  }
 
-  var utterThis = new SpeechSynthesisUtterance(inputTxt.value);
+  function checkAnswer(answer) {
+    if (answer === currentNumber) {
+      var msg = '✓ ' + currentNumber;
+    } else {
+      var msg = '✗ ' + currentNumber;
+    }
+    resultsText.innerHTML = msg;
+  }
 
-  utterThis.lang = 'fr_FR';
-  utterThis.voice = frenchVoice;
-  utterThis.pitch = 1;
-  utterThis.rate = rate.value;
-  synth.speak(utterThis);
+  function reset() {
+    inputTxt.value = '';
+    submitButton.disabled = true;
+    repeatButton.disabled = true;
+  }
 
-  inputTxt.blur();
-}
+  inputForm.onsubmit = function(event) {
+    event.preventDefault();
+    var answerText = inputTxt.value;
+    if (answerText) {
+      checkAnswer(parseInt(answerText, 10));
+      reset();
+    }
+    inputTxt.blur();
+  }
 
-pitch.onchange = function() {
-  pitchValue.textContent = pitch.value;
-}
+  inputTxt.onkeyup = function() {
+    submitButton.disabled = (inputTxt.value === '');
+  }
 
-rate.onchange = function() {
-  rateValue.textContent = rate.value;
-}
+  rate.onchange = function() {
+    rateValue.textContent = rate.value;
+  }
+
+  nextButton.onclick = function() {
+    next();
+  }
+
+  repeatButton.onclick = function() {
+    repeat();
+  }
+
+  getFrenchVoice();
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = getFrenchVoice;
+  }
+})();

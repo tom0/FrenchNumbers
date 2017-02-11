@@ -12,10 +12,35 @@ body {
   margin: 0 auto;
 }
 
-h1, p {
+.heading {
+  text-align:center;
+  margin: 30px;
+}
+
+h1 {
   font-family: sans-serif;
   text-align: center;
   padding: 20px;
+  display: inline;
+}
+
+button {
+  font-family: sans-serif;
+  text-align: center;
+  height: 100px;
+}
+
+.form-buttons { 
+  text-align: center;
+  width: 80%;
+}
+
+.form-button {
+  font-family: sans-serif;
+  text-align: center;
+  height: 50px;
+  width: 45%;
+  font-size: 16px;
 }
 
 .txt, select, form > div {
@@ -53,13 +78,14 @@ label {
   line-height: 1.5;
 }
 
-.rate-value, .pitch-value {
+.rate-value {
   float: right;
   width: 5%;
   line-height: 1.5;
+  margin: 0 5px;
 }
 
-#rate, #pitch {
+#rate {
   float: right;
-  width: 81%;
+  width: 75%;
 }
